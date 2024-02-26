@@ -21,21 +21,23 @@ void ArrayPushFront(Array<T>& array, T value);
 template <typename T>
 void ArrayInsert(Array<T>& array, T value, int index);
 
+template <typename T>
+T ArrayPopBack(Array<T>& array);
+
+
+int BracketsValidate(char* str);
+int CharIndex(const char* str, char symbol);
+
 
 
 int main()
 {
     srand(time(nullptr));
 
-    Array<int> array = ArrayIntCreate(10);
-    ArrayIntInit(array);
-    ArrayIntPrint(array);
+    char* str = new char[13];
+    strcpy_s(str, 13, "[({})()[]}]");
 
-    ArrayPushFront(array, 100);
-    ArrayPushBack(array, 200);
-    ArrayInsert(array, 300, 6);
-
-    ArrayIntPrint(array);
+    std::cout << BracketsValidate(str);
 }
 
 
@@ -125,4 +127,75 @@ void ArrayInsert(Array<T>& array, T value, int index)
     array.items = itemsNew;
 
     array.size++;
+}
+
+template<typename T>
+T ArrayPopBack(Array<T>& array)
+{
+    T pop = array.items[array.size - 1];
+
+    T* itemsNew = new T[--array.size];
+
+    for (int i{}; i < array.size; i++)
+        itemsNew[i] = array.items[i];
+
+    if (array.items)
+        delete[] array.items;
+    array.items = itemsNew;
+
+    return pop;
+}
+
+
+int BracketsValidate(char* str)
+{
+    char bracketsOpen[]  { "{([" };
+    char bracketsClose[] { "})]" };
+
+    Array<char> stack;
+
+    int i{};
+    while (str[i])
+    {
+        //if (str[i] != bracketOpen && str[i] != bracketClose)
+        if(!strchr(bracketsOpen, str[i]) && !strchr(bracketsClose, str[i]))
+        {
+            i++;
+            continue;
+        }
+
+        if (strchr(bracketsOpen, str[i]))
+            ArrayPushBack(stack, str[i]);
+        
+        if (strchr(bracketsClose, str[i]))
+        {
+            if (!stack.size)
+                return i;
+            else
+            {
+                int typeClose = CharIndex(bracketsClose, str[i]);
+                int typeOpen = CharIndex(bracketsOpen, ArrayPopBack(stack));
+                if (typeClose != typeOpen)
+                    return i;
+            }
+        }
+        i++;
+    }
+    
+    if (stack.size)
+        return i;
+
+    return -1;
+}
+
+int CharIndex(const char* str, char symbol)
+{
+    int index{};
+    while (str[index])
+    {
+        if (symbol == str[index])
+            return index;
+        index++;
+    }
+    return -1;
 }
